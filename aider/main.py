@@ -454,6 +454,11 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
     if argv is None:
         argv = sys.argv[1:]
 
+    # Handle SNC subcommand before regular aider processing
+    from aider.snc import handle_snc_command
+    if handle_snc_command(argv):
+        return 0
+
     if git is None:
         git_root = None
     elif force_git_root:
