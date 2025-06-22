@@ -6,6 +6,7 @@ import sys
 import json
 import requests
 import time
+import uuid
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -18,21 +19,37 @@ class SNCError(Exception):
 class SNCAPIClient:
     """API client for SNC operations"""
     
+    # Shared mock data across all instances for testing
+    _mock_sessions = {}
+    _mock_users = {
+        "user@company.com": {
+            "name": "John Doe",
+            "email": "user@company.com",
+            "organization": "Your Company",
+            "token": "demo-token-12345"
+        },
+        "admin@company.com": {
+            "name": "Jane Admin",
+            "email": "admin@company.com",
+            "organization": "Your Company",
+            "token": "admin-token-67890"
+        },
+        "developer": {
+            "name": "Dev User",
+            "email": "dev@company.com",
+            "organization": "Your Company",
+            "token": "dev-token-abcdef"
+        }
+    }
+    
     def __init__(self, base_url=None, timeout=30):
-        # Default to a sample API endpoint - replace with your company's API
+        # For testing purposes - using mock responses instead of real API calls
         self.base_url = base_url or "https://api.example.com/v1"
         self.timeout = timeout
-        self.session = requests.Session()
-        
-        # Set default headers
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'User-Agent': 'Aider-SNC/1.0'
-        })
     
     def login(self, user_input, token):
         """
-        Authenticate with the API
+        Authenticate with the API (Mock implementation for testing)
         
         Args:
             user_input (str): User identification (username, email, etc.)
@@ -41,48 +58,41 @@ class SNCAPIClient:
         Returns:
             dict: API response containing user info and session data
         """
-        endpoint = urljoin(self.base_url, "v1/auth/login")
-        
-        payload = {
-            "user_input": user_input,
-            "token": token,
-            "client": "aider",
-            "timestamp": int(time.time())
-        }
-        
         try:
-            response = self.session.post(
-                endpoint,
-                json=payload,
-                timeout=self.timeout
-            )
-            response.raise_for_status()
-            
-            data = response.json()
-            if not data.get('success', False):
-                raise SNCError(f"Login failed: {data.get('message', 'Unknown error')}")
-            
-            return data
-            
-        except requests.exceptions.Timeout:
-            raise SNCError("API request timed out")
-        except requests.exceptions.ConnectionError:
-            raise SNCError("Failed to connect to API server")
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 401:
-                raise SNCError("Invalid credentials")
-            elif e.response.status_code == 403:
-                raise SNCError("Access denied")
+            # Mock authentication logic
+            if user_input in self._mock_users and self._mock_users[user_input]['token'] == token:
+                # Generate mock session token
+                session_token = str(uuid.uuid4())
+                
+                # Store mock session
+                self._mock_sessions[session_token] = {
+                    'user': user_input,
+                    'created_at': time.time(),
+                    'last_activity': time.time()
+                }
+                
+                # Return mock successful response
+                return {
+                    "success": True,
+                    "message": "Login successful",
+                    "session_token": session_token,
+                    "user_info": {
+                        **self._mock_users[user_input],
+                        "login_time": time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                }
             else:
-                raise SNCError(f"API error: {e.response.status_code}")
-        except requests.exceptions.RequestException as e:
-            raise SNCError(f"Request failed: {str(e)}")
-        except json.JSONDecodeError:
-            raise SNCError("Invalid response from API")
+                # Return mock failed response
+                raise SNCError("Invalid credentials")
+            
+        except SNCError:
+            raise
+        except Exception as e:
+            raise SNCError(f"Login failed: {str(e)}")
     
     def logout(self, session_token):
         """
-        Logout from the API
+        Logout from the API (Mock implementation for testing)
         
         Args:
             session_token (str): Session token to invalidate
@@ -90,28 +100,31 @@ class SNCAPIClient:
         Returns:
             dict: API response
         """
-        endpoint = urljoin(self.base_url, "v1/auth/logout")
-        
-        headers = {
-            'Authorization': f'Bearer {session_token}'
-        }
-        
         try:
-            response = self.session.post(
-                endpoint,
-                headers=headers,
-                timeout=self.timeout
-            )
-            response.raise_for_status()
-            return response.json()
-            
-        except requests.exceptions.RequestException as e:
-            # For logout, we might want to proceed even if API call fails
-            return {"success": True, "message": "Logged out locally"}
+            # Mock logout logic
+            if session_token and session_token in self._mock_sessions:
+                user = self._mock_sessions[session_token]['user']
+                del self._mock_sessions[session_token]
+                return {
+                    "success": True, 
+                    "message": f"Logged out successfully for user: {user}"
+                }
+            else:
+                return {
+                    "success": True, 
+                    "message": "Logged out (no active session found)"
+                }
+                
+        except Exception as e:
+            # For logout, we proceed even if there are errors
+            return {
+                "success": True, 
+                "message": "Logged out locally"
+            }
     
     def status(self, session_token):
         """
-        Check session status with the API
+        Check session status with the API (Mock implementation for testing)
         
         Args:
             session_token (str): Session token to validate
@@ -119,27 +132,38 @@ class SNCAPIClient:
         Returns:
             dict: API response with session status
         """
-        endpoint = urljoin(self.base_url, "v1/auth/status")
-        
-        headers = {
-            'Authorization': f'Bearer {session_token}'
-        }
-        
         try:
-            response = self.session.get(
-                endpoint,
-                headers=headers,
-                timeout=self.timeout
-            )
-            response.raise_for_status()
-            return response.json()
-            
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 401:
-                return {"success": False, "message": "Session expired"}
+            # Mock status check logic
+            if not session_token:
+                return {
+                    "success": False, 
+                    "message": "No session token provided"
+                }
+                
+            if session_token in self._mock_sessions:
+                session = self._mock_sessions[session_token]
+                user_input = session['user']
+                
+                # Update last activity
+                session['last_activity'] = time.time()
+                
+                return {
+                    "success": True,
+                    "message": "Session is active",
+                    "user_info": {
+                        **self._mock_users[user_input],
+                        "last_activity": time.strftime('%Y-%m-%d %H:%M:%S'),
+                        "session_duration": f"{int(time.time() - session['created_at'])} seconds"
+                    },
+                    "expires_at": "Never (mock session)"
+                }
             else:
-                raise SNCError(f"Status check failed: {e.response.status_code}")
-        except requests.exceptions.RequestException as e:
+                return {
+                    "success": False, 
+                    "message": "Session expired or invalid"
+                }
+                
+        except Exception as e:
             raise SNCError(f"Status check failed: {str(e)}")
 
 

@@ -48,4 +48,5 @@ write_to = "aider/_version.py"
 
 [tool.codespell]
 skip = "*.svg,Gemfile.lock,tests/fixtures/*,aider/website/assets/*"
-write-changes = true
+write-changes = true 
+
