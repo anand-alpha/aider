@@ -19,7 +19,7 @@ from aider.deprecated import add_deprecated_model_args
 from .dump import dump  # noqa: F401
 
 
-def resolve_aiderignore_path(path_str, git_root=None):
+def resolve_sncignore_path(path_str, git_root=None):
     path = Path(path_str)
     if path.is_absolute():
         return str(path)
@@ -34,11 +34,11 @@ def default_env_file(git_root):
 
 def get_parser(default_config_files, git_root):
     parser = configargparse.ArgumentParser(
-        description="aider is AI pair programming in your terminal",
+        description="snc is AI pair programming in your terminal",
         add_config_file_help=True,
         default_config_files=default_config_files,
         config_file_parser_class=configargparse.YAMLConfigFileParser,
-        auto_env_var_prefix="AIDER_",
+        auto_env_var_prefix="SNC_",
     )
     # List of valid edit formats for argparse validation & shtab completion.
     # Dynamically gather them from the registered coder classes so the list
@@ -120,13 +120,13 @@ def get_parser(default_config_files, git_root):
     group.add_argument(
         "--model-settings-file",
         metavar="MODEL_SETTINGS_FILE",
-        default=".aider.model.settings.yml",
-        help="Specify a file with aider model settings for unknown models",
+        default=".snc.model.settings.yml",
+        help="Specify a file with snc model settings for unknown models",
     ).complete = shtab.FILE
     group.add_argument(
         "--model-metadata-file",
         metavar="MODEL_METADATA_FILE",
-        default=".aider.model.metadata.json",
+        default=".snc.model.metadata.json",
         help="Specify a file with context window and costs for unknown models",
     ).complete = shtab.FILE
     group.add_argument(
@@ -266,10 +266,14 @@ def get_parser(default_config_files, git_root):
     ##########
     group = parser.add_argument_group("History Files")
     default_input_history_file = (
-        os.path.join(git_root, ".aider.input.history") if git_root else ".aider.input.history"
+        os.path.join(git_root, ".aider.input.history")
+        if git_root
+        else ".aider.input.history"
     )
     default_chat_history_file = (
-        os.path.join(git_root, ".aider.chat.history.md") if git_root else ".aider.chat.history.md"
+        os.path.join(git_root, ".aider.chat.history.md")
+        if git_root
+        else ".aider.chat.history.md"
     )
     group.add_argument(
         "--input-history-file",
@@ -293,7 +297,7 @@ def get_parser(default_config_files, git_root):
         "--llm-history-file",
         metavar="LLM_HISTORY_FILE",
         default=None,
-        help="Log the conversation with the LLM to this file (for example, .aider.llm.history)",
+        help="Log the conversation with the LLM to this file (for example, .snc.llm.history)",
     ).complete = shtab.FILE
 
     ##########
@@ -408,24 +412,24 @@ def get_parser(default_config_files, git_root):
         "--gitignore",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Enable/disable adding .aider* to .gitignore (default: True)",
+        help="Enable/disable adding .snc* to .gitignore (default: True)",
     )
     group.add_argument(
         "--add-gitignore-files",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Enable/disable the addition of files listed in .gitignore to Aider's editing scope.",
+        help="Enable/disable the addition of files listed in .gitignore to Snowcell's editing scope.",
     )
-    default_aiderignore_file = (
-        os.path.join(git_root, ".aiderignore") if git_root else ".aiderignore"
+    default_sncignore_file = (
+        os.path.join(git_root, ".sncignore") if git_root else ".sncignore"
     )
 
     group.add_argument(
-        "--aiderignore",
-        metavar="AIDERIGNORE",
-        type=lambda path_str: resolve_aiderignore_path(path_str, git_root),
-        default=default_aiderignore_file,
-        help="Specify the aider ignore file (default: .aiderignore in git root)",
+        "--sncignore",
+        metavar="SNCIGNORE",
+        type=lambda path_str: resolve_sncignore_path(path_str, git_root),
+        default=default_sncignore_file,
+        help="Specify the snc ignore file (default: .sncignore in git root)",
     ).complete = shtab.FILE
     group.add_argument(
         "--subtree-only",
@@ -467,13 +471,13 @@ def get_parser(default_config_files, git_root):
         "--attribute-commit-message-author",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Prefix commit messages with 'aider: ' if aider authored the changes (default: False)",
+        help="Prefix commit messages with 'snc: ' if snc authored the changes (default: False)",
     )
     group.add_argument(
         "--attribute-commit-message-committer",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Prefix all commit messages with 'aider: ' (default: False)",
+        help="Prefix all commit messages with 'snc: ' (default: False)",
     )
     group.add_argument(
         "--attribute-co-authored-by",
@@ -591,7 +595,7 @@ def get_parser(default_config_files, git_root):
     group.add_argument(
         "--check-update",
         action=argparse.BooleanOptionalAction,
-        help="Check for new aider versions on launch",
+        help="Check for new snc versions on launch",
         default=True,
     )
     group.add_argument(
@@ -610,7 +614,7 @@ def get_parser(default_config_files, git_root):
         "--upgrade",
         "--update",
         action="store_true",
-        help="Upgrade aider to the latest version from PyPI",
+        help="Upgrade snc to the latest version from PyPI",
         default=False,
     )
     group.add_argument(
@@ -644,14 +648,14 @@ def get_parser(default_config_files, git_root):
         "--gui",
         "--browser",
         action=argparse.BooleanOptionalAction,
-        help="Run aider in your browser (default: False)",
+        help="Run snc in your browser (default: False)",
         default=False,
     )
     group.add_argument(
         "--copy-paste",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Enable automatic copy/paste of chat between aider and web UI (default: False)",
+        help="Enable automatic copy/paste of chat between snc and web UI (default: False)",
     )
     group.add_argument(
         "--apply",
@@ -844,8 +848,28 @@ def get_parser(default_config_files, git_root):
         choices=supported_shells_list,
         help=(
             "Print shell completion script for the specified SHELL and exit. Supported shells:"
-            f" {', '.join(supported_shells_list)}. Example: aider --shell-completions bash"
+            f" {', '.join(supported_shells_list)}. Example: snc --shell-completions bash"
         ),
+    )
+
+    ##########
+    group = parser.add_argument_group("Authentication")
+    group.add_argument(
+        "--login",
+        metavar="TOKEN",
+        help="Login with authentication token",
+    )
+    group.add_argument(
+        "--status",
+        action="store_true",
+        help="Check current login status",
+        default=False,
+    )
+    group.add_argument(
+        "--logout",
+        action="store_true",
+        help="Logout from current session",
+        default=False,
     )
 
     ##########
@@ -858,7 +882,7 @@ def get_parser(default_config_files, git_root):
 
 def get_md_help():
     os.environ["COLUMNS"] = "70"
-    sys.argv = ["aider"]
+    sys.argv = ["snc"]
     parser = get_parser([], None)
 
     # This instantiates all the action.env_var values
@@ -912,15 +936,23 @@ def main():
             shell = sys.argv[2]
             if shell not in shtab.SUPPORTED_SHELLS:
                 print(f"Error: Unsupported shell '{shell}'.", file=sys.stderr)
-                print(f"Supported shells are: {', '.join(shtab.SUPPORTED_SHELLS)}", file=sys.stderr)
+                print(
+                    f"Supported shells are: {', '.join(shtab.SUPPORTED_SHELLS)}",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
             parser = get_parser([], None)
             parser.prog = "aider"  # Set the program name on the parser
             print(shtab.complete(parser, shell=shell))
         else:
             print("Error: Please specify a shell for completion.", file=sys.stderr)
-            print(f"Usage: python {sys.argv[0]} completion <shell_name>", file=sys.stderr)
-            print(f"Supported shells are: {', '.join(shtab.SUPPORTED_SHELLS)}", file=sys.stderr)
+            print(
+                f"Usage: python {sys.argv[0]} completion <shell_name>", file=sys.stderr
+            )
+            print(
+                f"Supported shells are: {', '.join(shtab.SUPPORTED_SHELLS)}",
+                file=sys.stderr,
+            )
             sys.exit(1)
     else:
         # Default to YAML for any other unrecognized argument, or if 'yaml' was explicitly passed
