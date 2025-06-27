@@ -23,9 +23,9 @@ from aider.openrouter import OpenRouterModelManager
 from aider.sendchat import ensure_alternating_roles, sanity_check_messages
 from aider.utils import check_pip_install_extra
 
-# Import SnowCell provider to register it
+# Import and register the Snowcell custom provider
 try:
-    from aider import snowcell  # noqa: F401
+    from aider import snowcell_custom  # This registers the custom provider
 except ImportError:
     pass
 
@@ -107,10 +107,9 @@ MODEL_ALIASES = {
     "gemini-exp": "gemini/gemini-2.5-pro-exp-03-25",
     "grok3": "xai/grok-3-beta",
     "optimus": "openrouter/openrouter/optimus-alpha",
-    # SnowCell models
-    "qwen": "snowcell:qwen",
-    "llama": "snowcell:llama",
-    "mistral": "snowcell:mistral",
+    # SnowCell/Qwen integration - use custom provider
+    "qwen": "snowcell/Qwen/Qwen1.5-0.5B-Chat",
+    "openai/qwen": "snowcell/Qwen/Qwen1.5-0.5B-Chat",
 }
 # Model metadata loaded from resources and user's files.
 
@@ -700,6 +699,10 @@ class Model(ModelSettings):
 
         model = self.name
 
+        # Special case: snowcell provider does NOT require an API key
+        if model.startswith("snowcell/"):
+            return dict(keys_in_environment=True, missing_keys=[])
+
         pieces = model.split("/")
         if len(pieces) > 1:
             provider = pieces[0]
@@ -730,6 +733,10 @@ class Model(ModelSettings):
         res = self.fast_validate_environment()
         if res:
             return res
+
+        # Special case: snowcell provider does NOT require an API key
+        if self.name.startswith("snowcell/"):
+            return dict(keys_in_environment=True, missing_keys=[])
 
         # https://github.com/BerriAI/litellm/issues/3190
 

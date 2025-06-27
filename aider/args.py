@@ -34,6 +34,7 @@ def default_env_file(git_root):
 
 def get_parser(default_config_files, git_root):
     parser = configargparse.ArgumentParser(
+        prog="snc",
         description="snc is AI pair programming in your terminal",
         add_config_file_help=True,
         default_config_files=default_config_files,

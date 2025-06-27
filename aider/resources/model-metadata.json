@@ -578,44 +578,5 @@
   "together_ai/Qwen/Qwen3-235B-A22B-fp8-tput": {
     "input_cost_per_token": 0.0000002,
     "output_cost_per_token": 0.0000006
-  },
-  "snowcell:qwen": {
-    "max_tokens": 2048,
-    "max_input_tokens": 4096,
-    "max_output_tokens": 2048,
-    "input_cost_per_token": 0.0,
-    "output_cost_per_token": 0.0,
-    "litellm_provider": "snowcell",
-    "mode": "chat",
-    "supports_function_calling": false,
-    "supports_assistant_prefill": false,
-    "supports_tool_choice": false,
-    "supports_prompt_caching": false
-  },
-  "snowcell:llama": {
-    "max_tokens": 2048,
-    "max_input_tokens": 4096,
-    "max_output_tokens": 2048,
-    "input_cost_per_token": 0.0,
-    "output_cost_per_token": 0.0,
-    "litellm_provider": "snowcell",
-    "mode": "chat",
-    "supports_function_calling": false,
-    "supports_assistant_prefill": false,
-    "supports_tool_choice": false,
-    "supports_prompt_caching": false
-  },
-  "snowcell:mistral": {
-    "max_tokens": 2048,
-    "max_input_tokens": 4096,
-    "max_output_tokens": 2048,
-    "input_cost_per_token": 0.0,
-    "output_cost_per_token": 0.0,
-    "litellm_provider": "snowcell",
-    "mode": "chat",
-    "supports_function_calling": false,
-    "supports_assistant_prefill": false,
-    "supports_tool_choice": false,
-    "supports_prompt_caching": false
   }
 }
