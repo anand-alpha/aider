@@ -117,9 +117,13 @@ aider --model sonnet --api-key anthropic=<key>
 
 # o3-mini
 aider --model o3-mini --api-key openai=<key>
+
+# Snowcell/Qwen (using the snc command)
+snc --login your_token_here
+snc --model qwen file1.py file2.py
 ```
 
-See the [installation instructions](https://aider.chat/docs/install.html) and [usage documentation](https://aider.chat/docs/usage.html) for more details.
+See the [installation instructions](https://aider.chat/docs/install.html), [usage documentation](https://aider.chat/docs/usage.html), and [Snowcell Integration](SNOWCELL_INTEGRATION.md) for more details.
 
 ## More Information
 
@@ -131,6 +135,8 @@ See the [installation instructions](https://aider.chat/docs/install.html) and [u
 - [Configuration Options](https://aider.chat/docs/config.html)
 - [Troubleshooting](https://aider.chat/docs/troubleshooting.html)
 - [FAQ](https://aider.chat/docs/faq.html)
+- [Snowcell Integration](SNOWCELL_INTEGRATION.md)
+- [Snowcell Quick Start](SNOWCELL_QUICKSTART.md)
 
 ### Community & Resources
 - [LLM Leaderboards](https://aider.chat/docs/leaderboards/)
